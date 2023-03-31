@@ -42,3 +42,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+.vscode/
+
+ios/Podfile.lock
+
+ios/Runner.xcodeproj/project.pbxproj
+
+ios/Runner.xcworkspace/contents.xcworkspacedata
+
+pubspec.lock

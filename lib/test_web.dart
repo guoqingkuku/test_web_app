@@ -19,6 +19,11 @@ class _TestWebState extends State<TestWeb> {
     super.initState();
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(NavigationDelegate(
+        onPageStarted: (String url) {
+          debugPrint("onPageStarted:$url");
+        },
+      ))
       ..addJavaScriptChannel("testAdd",
           onMessageReceived: (JavaScriptMessage message) async {
         debugPrint(
@@ -30,30 +35,63 @@ class _TestWebState extends State<TestWeb> {
           toastDuration: 5,
         );
       })
-      ..loadRequest(Uri.parse('http://choo.live'));
+      ..loadRequest(Uri.parse('https://choo.live'));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("测试web页"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              var s = {
-                "title": "测试标题",
-                "content": "测试内容",
-              };
-              var prams = json.encoder.convert(s);
-              var js = "window.showJsDialog('$prams')";
-              controller.runJavaScript(js);
-            },
-          ),
-        ],
+    return SafeArea(
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Expanded(
+              child: SizedBox(
+                  width: double.infinity,
+                  child: WebViewWidget(controller: controller)),
+            ),
+            SizedBox(
+                height: 45,
+                child: Row(
+                  children: [
+                    const SizedBox(
+                      width: 45,
+                    ),
+                    const Expanded(
+                      child: Text(
+                        "Welcome to clx",
+                        style: TextStyle(
+                          fontSize: 23,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.refresh),
+                      onPressed: _callWebMethod,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                )),
+          ],
+        ),
       ),
-      body: WebViewWidget(controller: controller),
     );
+  }
+
+  //调用web的方法
+  void _callWebMethod() {
+    var s = {
+      "title": "测试标题",
+      "content": "测试内容",
+    };
+    var prams = json.encoder.convert(s);
+    var js = "window.showJsDialog('$prams')";
+    controller.runJavaScript(js);
   }
 }
