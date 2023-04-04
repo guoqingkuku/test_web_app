@@ -33,10 +33,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  void _incrementCounter() {
+  void _openWeb(String url) {
     //调转到新的页面
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const TestWeb();
+      return TestWeb(
+        url: url,
+      );
     }));
   }
 
@@ -50,27 +52,38 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: <Widget>[
-          InkWell(
-            onTap: _incrementCounter,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  SvgPicture.asset(
-                    "assets/icons/trading.svg",
-                    width: 80,
-                    height: 80,
-                  ),
-                  Text(
-                    '去web',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
-                ],
-              ),
-            ),
-          ),
+          Row(
+            children: [
+              _buildItem(
+                  '去web', 'https://choo.live', "assets/icons/trading.svg"),
+              _buildItem(
+                  '京东', 'https://www.jd.com', "assets/icons/twitter.svg"),
+            ],
+          )
         ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  Widget _buildItem(String title, String url, String icon) {
+    return InkWell(
+      onTap: () => _openWeb(url),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            SvgPicture.asset(
+              icon,
+              width: 80,
+              height: 80,
+            ),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

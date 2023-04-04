@@ -5,7 +5,10 @@ import 'package:getwidget/getwidget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class TestWeb extends StatefulWidget {
-  const TestWeb({super.key});
+  const TestWeb({super.key, this.titleColor, this.title, required this.url});
+  final Color? titleColor;
+  final String? title;
+  final String url;
 
   @override
   State<TestWeb> createState() => _TestWebState();
@@ -13,15 +16,26 @@ class TestWeb extends StatefulWidget {
 
 class _TestWebState extends State<TestWeb> {
   late WebViewController controller;
+  String? title;
 
   @override
   void initState() {
     super.initState();
+    title = widget.title;
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(NavigationDelegate(
         onPageStarted: (String url) {
           debugPrint("onPageStarted:$url");
+        },
+        onPageFinished: (_) {
+          if (widget.title == null) {
+            controller.getTitle().then((value) {
+              setState(() {
+                title = value;
+              });
+            });
+          }
         },
       ))
       ..addJavaScriptChannel("testAdd",
@@ -35,7 +49,7 @@ class _TestWebState extends State<TestWeb> {
           toastDuration: 5,
         );
       })
-      ..loadRequest(Uri.parse('https://choo.live'));
+      ..loadRequest(Uri.parse(widget.url));
   }
 
   @override
@@ -44,22 +58,21 @@ class _TestWebState extends State<TestWeb> {
       child: Scaffold(
         body: Stack(
           children: [
-            Expanded(
-              child: SizedBox(
-                  width: double.infinity,
-                  child: WebViewWidget(controller: controller)),
-            ),
-            SizedBox(
+            WebViewWidget(controller: controller),
+            Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                ),
                 height: 45,
                 child: Row(
                   children: [
                     const SizedBox(
                       width: 45,
                     ),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        "Welcome to clx",
-                        style: TextStyle(
+                        title ?? "",
+                        style: const TextStyle(
                           fontSize: 23,
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
